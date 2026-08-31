@@ -1,0 +1,8 @@
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: teams4j-boot-smoke
+
+# No teams4j.webhook.url: the default run proves the app starts without a client bean.
+# The `send` profile supplies it.

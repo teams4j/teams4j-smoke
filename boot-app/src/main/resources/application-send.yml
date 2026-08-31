@@ -1,0 +1,5 @@
+teams4j:
+  webhook:
+    url: ${TEAMS_WEBHOOK_URL}
+    validation: ENFORCE
+    rate-limit: BLOCK
