@@ -1,3 +1,4 @@
 .gradle/
 build/
 smoke-results.md
+bot-conversation.properties

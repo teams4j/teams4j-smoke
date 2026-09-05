@@ -33,10 +33,8 @@ fun main(): Unit = runBlocking {
                 wrap = true
             }
             factSet {
-                facts {
-                    fact { title = "Path"; value = "teams4j-cards-kotlin + teams4j-webhook-kotlin" }
-                    fact { title = "Thread"; value = Thread.currentThread().name }
-                }
+                fact("Path", "teams4j-cards-kotlin + teams4j-webhook-kotlin")
+                fact("Thread", Thread.currentThread().name)
             }
         }
         webhookActions {

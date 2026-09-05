@@ -19,7 +19,7 @@ import java.util.concurrent.CompletionException;
 
 import io.github.teams4j.cards.AdaptiveCard;
 import io.github.teams4j.webhook.RateLimitMode;
-import io.github.teams4j.webhook.ValidationMode;
+import io.github.teams4j.teams.profile.ValidationMode;
 import io.github.teams4j.webhook.WebhookException;
 import io.github.teams4j.webhook.WebhookMessage;
 import io.github.teams4j.webhook.WebhookResponse;
