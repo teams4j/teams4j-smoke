@@ -23,7 +23,9 @@ import io.github.teams4j.bot.BotNotInConversationException;
 import io.github.teams4j.bot.BotTokenVerifier;
 import io.github.teams4j.bot.ChannelAccount;
 import io.github.teams4j.bot.ConnectorClient;
+import io.github.teams4j.bot.ConversationParameters;
 import io.github.teams4j.bot.ConversationReference;
+import io.github.teams4j.bot.ConversationResourceResponse;
 import io.github.teams4j.bot.ResourceResponse;
 import io.github.teams4j.bot.TokenVerificationException;
 import io.github.teams4j.cards.JsonCodec;
@@ -86,8 +88,25 @@ public final class BotSmoke {
                         .build();
                 System.out.println("targeted, id=" + connector.sendTargetedActivity(where(), ephemeral).id());
             }
+            case "converse" -> {
+                // Proactive: open (or find) the one-to-one chat with the last user who wrote, then post
+                // into it. Needs the tenant, which `serve` stores alongside the user.
+                Properties p = stored();
+                String user = p.getProperty("lastUserId");
+                String tenant = p.getProperty("tenantId");
+                if (user == null || tenant == null) {
+                    System.err.println("no lastUserId/tenantId stored yet: write to the bot once while `serve` is running");
+                    System.exit(2);
+                }
+                ConversationResourceResponse chat = connector.createConversation(
+                        where().serviceUrl(), ConversationParameters.personal(user, tenant));
+                System.out.println("conversation " + chat.id() + " at " + chat.reference().serviceUrl());
+                ResourceResponse sent = connector.sendActivity(chat.reference(),
+                        connector.cardActivity(card("converse", "Proactive: the bot opened this chat itself")));
+                System.out.println("sent, id=" + sent.id());
+            }
             default -> {
-                System.err.println("usage: serve [port] | send | update | delete | targeted");
+                System.err.println("usage: serve [port] | send | update | delete | targeted | converse");
                 System.exit(2);
             }
         }
@@ -151,7 +170,7 @@ public final class BotSmoke {
         ConversationReference channel = where.withoutMessageId();
         String user = activity.from() == null ? null : activity.from().id();
         if (activity.isBotAdded(credentials.botId())) {
-            store(channel, null);
+            store(channel, null, activity.tenantId());
             System.out.println("  bot added: stored " + where);
             connector.sendActivity(where, connector.cardActivity(card("welcome",
                     "teams4j bot smoke is here. Say something, or press the button.")));
@@ -160,14 +179,14 @@ public final class BotSmoke {
         if (activity.value() != null) {
             String json = JSON.write(activity.value());
             System.out.println("  submit value=" + json);
-            store(channel, user);
+            store(channel, user, activity.tenantId());
             connector.replyToActivity(where, activity.id(), Activity.message("Got your submit: `" + json + "`"));
             return;
         }
         if (activity.isMessage()) {
             String text = activity.textWithoutMentions();
             System.out.println("  text=\"" + text + "\" mentions=" + activity.mentions().size());
-            store(channel, user);
+            store(channel, user, activity.tenantId());
             connector.replyToActivity(where, activity.id(),
                     connector.cardActivity(card("echo", "You said: " + text)));
         }
@@ -219,12 +238,15 @@ public final class BotSmoke {
         return p;
     }
 
-    private static void store(ConversationReference where, String lastUserId) throws IOException {
+    private static void store(ConversationReference where, String lastUserId, String tenantId) throws IOException {
         Properties p = stored();
         p.setProperty("serviceUrl", where.serviceUrl().toString());
         p.setProperty("conversationId", where.conversationId());
         if (lastUserId != null) {
             p.setProperty("lastUserId", lastUserId);
+        }
+        if (tenantId != null) {
+            p.setProperty("tenantId", tenantId);
         }
         try (var out = Files.newOutputStream(STORE)) {
             p.store(out, "written by bot-cli serve; git-ignored");
