@@ -2,8 +2,8 @@
 
 Manual smoke tests for [teams4j](https://github.com/teams4j/teams4j) against a real Microsoft Teams
 tenant. It lives outside the library repository on purpose: it consumes the **published artifacts**
-through `mavenLocal`, so it also exercises what only an artifact can get wrong — the POM, dependency
-leaks, the nullness contract.
+(from Central, or from `mavenLocal` with `-Pteams4jVersion`), so it also exercises what only an
+artifact can get wrong — the POM, dependency leaks, the nullness contract.
 
 What it has established so far is written up at
 <https://teams4j.github.io/teams4j/reference/measurements>.
@@ -11,7 +11,8 @@ What it has established so far is written up at
 ## Setup
 
 ```bash
-cd ../teams4j && ./gradlew publishToMavenLocal && cd ../teams4j-smoke
+# only for an unreleased teams4j; otherwise the version in gradle.properties comes from Central
+cd ../teams4j && ./gradlew publishToMavenLocal && cd ../teams4j-smoke   # then -Pteams4jVersion=<its printVersion>
 export TEAMS_WEBHOOK_URL='https://...'   # never commit this: the URL is write access to the channel
 ```
 
