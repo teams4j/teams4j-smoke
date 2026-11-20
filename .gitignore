@@ -2,3 +2,6 @@
 build/
 smoke-results.md
 bot-conversation.properties
+
+# credentials for bot-cli; never commit
+.env

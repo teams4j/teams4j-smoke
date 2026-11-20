@@ -115,7 +115,8 @@ public final class BotSmoke {
     // ---- inbound -----------------------------------------------------------------------------
 
     private static void serve(int port, BotCredentials credentials, ConnectorClient connector) throws IOException {
-        ActivityReceiver receiver = new ActivityReceiver(BotTokenVerifier.builder(credentials.appId()).build());
+        // With the registration's tenant, so its Entra issuers are accepted -- from the bot itself only.
+        ActivityReceiver receiver = new ActivityReceiver(BotTokenVerifier.builder(credentials).build());
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/api/messages", exchange -> handle(exchange, receiver, credentials, connector));
         server.start();
@@ -133,9 +134,11 @@ public final class BotSmoke {
         try (InputStream in = exchange.getRequestBody()) {
             body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
+        String authorization = exchange.getRequestHeaders().getFirst("Authorization");
+        System.out.println(Instant.now() + " token " + describe(authorization));
         Activity activity;
         try {
-            activity = receiver.receive(exchange.getRequestHeaders().getFirst("Authorization"), body);
+            activity = receiver.receive(authorization, body);
         } catch (TokenVerificationException e) {
             // The reason goes to the console only; the caller gets a bare 401.
             System.out.println(Instant.now() + " 401 " + e.getMessage());
@@ -189,6 +192,30 @@ public final class BotSmoke {
             store(channel, user, activity.tenantId());
             connector.replyToActivity(where, activity.id(),
                     connector.cardActivity(card("echo", "You said: " + text)));
+        }
+    }
+
+    /** Who issued the token and for which caller: unverified, for the console only; the token itself is never printed. */
+    private static String describe(String authorization) {
+        if (authorization == null) {
+            return "none";
+        }
+        String[] parts = authorization.replaceFirst("(?i)^bearer ", "").split("\\.");
+        if (parts.length != 3) {
+            return "not a JWT";
+        }
+        try {
+            var claims = JSON.read(new String(java.util.Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8));
+            if (!(claims instanceof io.github.teams4j.cards.CardValue.Obj obj)) {
+                return "claims are not an object";
+            }
+            var c = obj.entries();
+            java.util.function.Function<String, String> s =
+                    k -> c.get(k) instanceof io.github.teams4j.cards.CardValue.Str v ? v.value() : null;
+            return "iss=" + s.apply("iss") + " azp=" + s.apply("azp") + " appid=" + s.apply("appid")
+                    + " serviceurl=" + (c.containsKey("serviceurl") ? "present" : "absent");
+        } catch (IllegalArgumentException e) {
+            return "undecodable";
         }
     }
 
