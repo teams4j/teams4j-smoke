@@ -43,7 +43,7 @@ public class BootSmokeApplication {
                     .text("Card sent through the Spring Boot starter",
                             t -> t.weight(FontWeight.BOLDER).color(Colors.ACCENT))
                     .facts(f -> f.add("Spring", String.valueOf(SpringVersion.getVersion()))
-                            .add("Path", "teams4j-webhook-spring-boot-starter"))
+                            .add("Path", "teams4j-webhook-spring-boot3-starter"))
                     .openUrl("teams4j", "https://github.com/teams4j/teams4j"));
             System.out.println("HTTP " + response.statusCode() + " in " + response.attempts() + " attempt(s)");
         };

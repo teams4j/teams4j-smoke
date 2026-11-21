@@ -6,7 +6,7 @@ val bootVersion = property("bootVersion") as String
 
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:$bootVersion"))
-    implementation("io.github.teams4j:teams4j-webhook-spring-boot-starter")
+    implementation("io.github.teams4j:teams4j-webhook-spring-boot3-starter")
     implementation("org.springframework.boot:spring-boot-starter")
 }
 

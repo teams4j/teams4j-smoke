@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation("io.github.teams4j:teams4j-bot")
     // The bot module brings no JSON binding; both the CardWriter and the JsonCodec come from here.
-    implementation("io.github.teams4j:teams4j-cards-jackson")
+    implementation("io.github.teams4j:teams4j-cards-jackson2")
 }
 
 application {

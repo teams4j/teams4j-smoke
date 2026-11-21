@@ -6,7 +6,7 @@ dependencies {
     implementation("io.github.teams4j:teams4j-webhook")
     // teams4j-webhook brings no JSON binding; without this line the client fails at construction.
     // implementation rather than runtimeOnly, so javac can resolve the model's Jackson annotations.
-    implementation("io.github.teams4j:teams4j-cards-jackson")
+    implementation("io.github.teams4j:teams4j-cards-jackson2")
 }
 
 application {
