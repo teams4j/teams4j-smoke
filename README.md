@@ -31,6 +31,7 @@ the lowest Kotlin the modules support.
 | `java-cli` | The probe catalogue and the endpoint measurements | `teams4j-cards-jackson` |
 | `kotlin-cli` | The Kotlin DSL and `sendAwait`; the nullness contract without jspecify; no Jackson on the classpath | `teams4j-cards-kotlinx` |
 | `boot-app` | The starter's auto-configuration on Boot 3.5 and 4.1 | brought in by the starter |
+| `log-cli` | `teams4j-logback` and `teams4j-log4j2`: rendering, suppression and the dropped count | none needed |
 | `bot-cli` | `teams4j-bot` against a real bot registration: inbound verification, replies, update, delete, targeted | `teams4j-cards-jackson` |
 
 ## Running
@@ -45,6 +46,9 @@ the lowest Kotlin the modules support.
 ./gradlew :java-cli:run --args="burst 12 --raw"          # JDK HttpClient alone, raw Retry-After header
 
 ./gradlew :kotlin-cli:run
+
+./gradlew :log-cli:run --args="logback"                   # about 6 cards in 20 s; then count them in the channel
+./gradlew :log-cli:run --args="log4j2"
 
 ./gradlew :boot-app:run                                                      # no URL: no bean, still starts
 ./gradlew :boot-app:run --args="--spring.profiles.active=send"               # Boot 3.5.16

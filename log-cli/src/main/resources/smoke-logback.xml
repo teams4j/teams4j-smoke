@@ -1,0 +1,11 @@
+<configuration>
+  <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+  <appender name="TEAMS" class="io.github.teams4j.logback.TeamsAppender">
+    <url>${TEAMS_WEBHOOK_URL}</url>
+    <title>smoke-logback</title>
+    <queueSize>3</queueSize>
+    <suppressWindow>5 seconds</suppressWindow>
+    <shutdownTimeout>30 seconds</shutdownTimeout>
+  </appender>
+  <root level="INFO"><appender-ref ref="TEAMS"/></root>
+</configuration>

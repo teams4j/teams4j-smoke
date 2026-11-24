@@ -1,0 +1,7 @@
+<Configuration status="WARN">
+  <Appenders>
+    <Teams name="TEAMS" url="${env:TEAMS_WEBHOOK_URL}" title="smoke-log4j2" queueSize="3"
+           suppressWindowMillis="5000" shutdownTimeoutMillis="30000"/>
+  </Appenders>
+  <Loggers><Root level="INFO"><AppenderRef ref="TEAMS"/></Root></Loggers>
+</Configuration>
